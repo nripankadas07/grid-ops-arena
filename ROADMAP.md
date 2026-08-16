@@ -1,6 +1,6 @@
 # Roadmap
 
-Grid Ops Arena is at `0.1.0`: the artifact contract is versioned, while the physical model is intentionally compact. Items are ordered by evidence value, not promised dates.
+Grid Ops Arena is at `0.1.1`: the artifact contract is versioned, while the physical model is intentionally compact. Items are ordered by evidence value, not promised dates.
 
 ## 0.2 — Policy conformance
 

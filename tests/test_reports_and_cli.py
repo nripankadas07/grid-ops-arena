@@ -124,6 +124,39 @@ class ReportingTests(unittest.TestCase):
         self.assertIn("non-finite derived value", completed.stderr)
         self.assertNotIn("Traceback", completed.stderr)
 
+    def test_cli_rejects_oversized_json_integer_without_traceback(self):
+        artifact = build_demo_scenario(1, 12).to_artifact()
+        artifact["series"]["load_kw"][0] = 10 ** 400
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            scenario_path = root / "oversized-integer.json"
+            scenario_path.write_text(json.dumps(artifact), encoding="utf-8")
+            output_dir = root / "out"
+            env = dict(os.environ)
+            env["PYTHONPATH"] = str(ROOT / "src")
+            completed = subprocess.run(
+                [
+                    sys.executable,
+                    "-m",
+                    "grid_ops_arena",
+                    "run",
+                    "--scenario",
+                    str(scenario_path),
+                    "--output-dir",
+                    str(output_dir),
+                ],
+                cwd=str(ROOT),
+                env=env,
+                text=True,
+                capture_output=True,
+                check=False,
+            )
+            output_exists = output_dir.exists()
+        self.assertEqual(completed.returncode, 2)
+        self.assertIn("must contain finite numbers", completed.stderr)
+        self.assertNotIn("Traceback", completed.stderr)
+        self.assertFalse(output_exists)
+
 
 if __name__ == "__main__":
     unittest.main()

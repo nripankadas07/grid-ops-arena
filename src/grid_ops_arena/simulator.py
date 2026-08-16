@@ -59,7 +59,7 @@ def _finite_action_value(
         return 0.0
     try:
         normalized = float(value)
-    except (TypeError, ValueError):
+    except (TypeError, ValueError, OverflowError):
         violations.append({"step": step, "constraint": constraint})
         return 0.0
     if not math.isfinite(normalized):

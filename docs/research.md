@@ -10,7 +10,7 @@ Research reviewed on 2026-08-16. This note records conceptual influences and the
 | [PowerModelsONM](https://github.com/lanl-ansi/PowerModelsONM.jl) | The importance of explicit outage/restoration conditions and networked-microgrid operational constraints. |
 | [GridLAB-D](https://github.com/gridlab-d/gridlab-d) | The value of stepwise, inspectable distribution-system simulation and reproducible event inputs. |
 | [Gymnasium environment API](https://gymnasium.farama.org/api/env/) | A small observation/action boundary that lets policies remain independent from environment internals. |
-| [NREL research on REopt microgrid resilience](https://docs.nrel.gov/docs/fy24osti/87314.pdf) | Reporting performance under user-specified outage conditions instead of implying generic resilience. |
+| [Microgrid design and multi-year dispatch optimization under climate-informed uncertainty](https://doi.org/10.1016/j.apenergy.2024.123355) | Reporting performance under user-specified outage conditions instead of implying generic resilience. |
 
 ## Deliberate differentiation
 
