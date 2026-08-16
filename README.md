@@ -18,6 +18,7 @@ Agent demos often optimize a single number while silently violating power, energ
 - Reports share a stable `1.0.0` artifact schema in JSON, Markdown, and single-file HTML.
 - Scenario readers require the exact versioned root, series, and configuration fields; missing and unknown fields fail closed.
 - Every derived multiplication and accumulation is checked for finite output before it can reach an artifact.
+- Report bundles are staged and rolled back as a set; cooperating writers hold an exclusive advisory directory lock so their files cannot mix, and output-directory links and pre-existing report links are rejected rather than followed.
 - Unit and subprocess integration tests run with the Python standard library.
 
 ## 60-second demo
@@ -76,7 +77,13 @@ Policies receive a plain dictionary observation and return `Action(battery_kw, p
 make test
 make demo
 make golden
+python -m pip install build==1.4.4
+release_dir="$(mktemp -d)"
+python -m build --sdist --outdir "$release_dir"
+python scripts/check_sdist.py "$release_dir"/*.tar.gz
 ```
+
+The source-distribution check rejects unsafe or cache/build entries, verifies that examples and golden fixtures are present, extracts the archive, and runs its complete embedded test suite.
 
 ## Limits
 

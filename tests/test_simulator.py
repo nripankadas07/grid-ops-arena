@@ -25,6 +25,13 @@ class NonFinitePolicy:
         return Action(battery_kw=float("nan"), peaker_kw=float("inf"))
 
 
+class OversizedIntegerPolicy:
+    name = "oversized-integer-test"
+
+    def decide(self, observation):
+        return Action(battery_kw=10 ** 400, peaker_kw=-(10 ** 400))
+
+
 class ChargeDuringOutagePolicy:
     name = "charge-during-outage-test"
 
@@ -47,6 +54,13 @@ class SimulatorTests(unittest.TestCase):
 
     def test_non_finite_actions_are_safely_rejected(self):
         result = simulate(build_demo_scenario(4, 24), NonFinitePolicy())
+        codes = {item["constraint"] for item in result["violations"]}
+        self.assertIn("finite_battery_action", codes)
+        self.assertIn("finite_peaker_action", codes)
+        json.dumps(result, allow_nan=False)
+
+    def test_oversized_integer_actions_are_safely_rejected(self):
+        result = simulate(build_demo_scenario(4, 24), OversizedIntegerPolicy())
         codes = {item["constraint"] for item in result["violations"]}
         self.assertIn("finite_battery_action", codes)
         self.assertIn("finite_peaker_action", codes)
@@ -134,6 +148,21 @@ class SimulatorTests(unittest.TestCase):
         artifact["config"]["battery_capacity_kwh"] = "120"
         with self.assertRaisesRegex(ValueError, "must be numeric"):
             Scenario.from_artifact(artifact)
+
+    def test_artifact_rejects_integers_too_large_for_floating_point(self):
+        mutations = []
+        artifact = build_demo_scenario(1, 12).to_artifact()
+        artifact["series"]["load_kw"][0] = 10 ** 400
+        mutations.append(artifact)
+
+        artifact = build_demo_scenario(1, 12).to_artifact()
+        artifact["config"]["battery_capacity_kwh"] = 10 ** 400
+        mutations.append(artifact)
+
+        for artifact in mutations:
+            with self.subTest(field="series" if artifact["series"]["load_kw"][0] == 10 ** 400 else "config"):
+                with self.assertRaisesRegex(ValueError, "finite"):
+                    Scenario.from_artifact(artifact)
 
     def test_artifact_requires_exact_root_series_and_config_fields(self):
         mutations = []

@@ -6,6 +6,8 @@ import re
 from pathlib import Path
 from typing import Any, Dict
 
+from .safeio import write_text_files
+
 
 def _markdown_text(value: Any) -> str:
     """Render untrusted values as one inert Markdown line."""
@@ -106,16 +108,20 @@ def _html(result: Dict[str, Any]) -> str:
 
 
 def write_reports(result: Dict[str, Any], output_dir: Path) -> Dict[str, Path]:
-    output_dir.mkdir(parents=True, exist_ok=True)
     paths = {
         "json": output_dir / "grid_ops_report.json",
         "markdown": output_dir / "grid_ops_report.md",
         "html": output_dir / "grid_ops_report.html",
     }
-    paths["json"].write_text(
-        json.dumps(result, indent=2, sort_keys=True, allow_nan=False) + "\n",
-        encoding="utf-8",
+    write_text_files(
+        output_dir,
+        {
+            paths["json"].name: json.dumps(
+                result, indent=2, sort_keys=True, allow_nan=False
+            )
+            + "\n",
+            paths["markdown"].name: _markdown(result),
+            paths["html"].name: _html(result),
+        },
     )
-    paths["markdown"].write_text(_markdown(result), encoding="utf-8")
-    paths["html"].write_text(_html(result), encoding="utf-8")
     return paths

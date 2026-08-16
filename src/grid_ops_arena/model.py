@@ -27,6 +27,19 @@ def _require_exact_fields(value: Dict[str, Any], expected: set, label: str) -> N
     raise ValueError("{0} fields do not match schema ({1})".format(label, "; ".join(details)))
 
 
+def _finite_number(value: Any, label: str) -> float:
+    """Return a finite JSON number without leaking float-conversion overflow."""
+    if isinstance(value, bool) or not isinstance(value, (int, float)):
+        raise ValueError("{0} must be numeric".format(label))
+    try:
+        normalized = float(value)
+    except OverflowError as exc:
+        raise ValueError("{0} must be finite".format(label)) from exc
+    if not math.isfinite(normalized):
+        raise ValueError("{0} must be finite".format(label))
+    return normalized
+
+
 @dataclass(frozen=True)
 class GridConfig:
     battery_capacity_kwh: float = 120.0
@@ -58,7 +71,12 @@ class GridConfig:
                     ", ".join(sorted(invalid))
                 )
             )
-        return cls(**supplied)
+        return cls(
+            **{
+                key: _finite_number(candidate, "grid configuration value {0}".format(key))
+                for key, candidate in supplied.items()
+            }
+        )
 
 
 @dataclass(frozen=True)
@@ -104,14 +122,14 @@ class Scenario:
             self.grid_price_per_kwh,
             self.grid_emissions_kg_per_kwh,
         )
-        if any(
-            isinstance(value, bool)
-            or not isinstance(value, (int, float))
-            or not math.isfinite(float(value))
-            for series in numeric_series
-            for value in series
-        ):
-            raise ValueError("scenario numeric series must contain only finite numbers")
+        try:
+            for series in numeric_series:
+                for value in series:
+                    _finite_number(value, "scenario numeric series value")
+        except ValueError as exc:
+            raise ValueError(
+                "scenario numeric series must contain only finite numbers"
+            ) from exc
         if any(value < 0 for series in numeric_series for value in series):
             raise ValueError("load, renewable, price, and emissions values must be non-negative")
         if any(type(value) is not bool for value in self.grid_available + self.peaker_available):
@@ -129,13 +147,14 @@ class Scenario:
             self.config.value_of_lost_load_per_kwh,
             self.config.timestep_hours,
         )
-        if any(
-            isinstance(value, bool) or not isinstance(value, (int, float))
-            for value in config_values
-        ):
-            raise ValueError("grid configuration values must be numeric")
-        if any(not math.isfinite(float(value)) for value in config_values):
-            raise ValueError("grid configuration values must be finite")
+        try:
+            for value in config_values:
+                _finite_number(value, "grid configuration value")
+        except ValueError as exc:
+            message = str(exc)
+            if "numeric" in message:
+                raise ValueError("grid configuration values must be numeric") from exc
+            raise ValueError("grid configuration values must be finite") from exc
         if self.config.battery_capacity_kwh <= 0 or self.config.battery_max_power_kw <= 0:
             raise ValueError("battery capacity and power must be positive")
         if not 0 < self.config.charge_efficiency <= 1 or not 0 < self.config.discharge_efficiency <= 1:
@@ -236,12 +255,17 @@ class Scenario:
             values = series.get(name)
             if not isinstance(values, list):
                 raise ValueError("series.{0} must be an array".format(name))
-            if any(
-                isinstance(item, bool) or not isinstance(item, (int, float))
-                for item in values
-            ):
-                raise ValueError("series.{0} must contain numbers".format(name))
-            return [float(item) for item in values]
+            converted: List[float] = []
+            for item in values:
+                try:
+                    converted.append(
+                        _finite_number(item, "series.{0} value".format(name))
+                    )
+                except ValueError as exc:
+                    raise ValueError(
+                        "series.{0} must contain finite numbers".format(name)
+                    ) from exc
+            return converted
 
         def availability_series(name: str) -> List[bool]:
             values = series.get(name)
