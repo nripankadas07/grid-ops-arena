@@ -1,0 +1,15 @@
+name: Feature request
+description: Propose a scoped capability
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem and user
+    validations:
+      required: true
+  - type: textarea
+    id: proof
+    attributes:
+      label: Acceptance evidence
+    validations:
+      required: true

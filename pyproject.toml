@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "grid-ops-arena"
+version = "0.1.0"
+description = "Deterministic microgrid policy simulator and evaluation CLI"
+readme = "README.md"
+requires-python = ">=3.9"
+license = {file = "LICENSE"}
+authors = [{name = "Nripanka Das"}]
+dependencies = []
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "License :: OSI Approved :: MIT License",
+  "Operating System :: OS Independent",
+]
+
+[project.urls]
+Homepage = "https://github.com/nripankadas07/grid-ops-arena"
+Repository = "https://github.com/nripankadas07/grid-ops-arena"
+Issues = "https://github.com/nripankadas07/grid-ops-arena/issues"
+
+[project.scripts]
+grid-ops-arena = "grid_ops_arena.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]

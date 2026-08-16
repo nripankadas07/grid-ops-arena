@@ -1,0 +1,31 @@
+{
+  "schema_version": "1.0.0",
+  "artifact_type": "grid-ops-arena.scenario",
+  "scenario_id": "synthetic-community-microgrid-12h",
+  "seed": 101,
+  "synthetic_notice": "All values in this example are synthetic demonstration data, not current facts.",
+  "config": {
+    "battery_capacity_kwh": 90.0,
+    "battery_max_power_kw": 35.0,
+    "battery_initial_soc_kwh": 55.0,
+    "charge_efficiency": 0.94,
+    "discharge_efficiency": 0.94,
+    "peaker_capacity_kw": 45.0,
+    "peaker_cost_per_kwh": 0.38,
+    "peaker_emissions_kg_per_kwh": 0.72,
+    "value_of_lost_load_per_kwh": 12.0,
+    "timestep_hours": 1.0
+  },
+  "series": {
+    "load_kw": [48, 45, 43, 42, 44, 51, 60, 67, 71, 69, 63, 56],
+    "renewable_kw": [9, 10, 11, 15, 25, 39, 48, 42, 28, 18, 12, 9],
+    "grid_available": [true, true, true, true, true, true, false, false, false, true, true, true],
+    "peaker_available": [true, true, true, true, true, true, true, true, false, true, true, true],
+    "grid_price_per_kwh": [0.11, 0.11, 0.11, 0.14, 0.14, 0.17, 0.21, 0.25, 0.27, 0.24, 0.19, 0.15],
+    "grid_emissions_kg_per_kwh": [0.31, 0.30, 0.29, 0.30, 0.32, 0.35, 0.39, 0.51, 0.55, 0.50, 0.40, 0.34]
+  },
+  "events": [
+    {"kind": "grid_outage", "start_step": 6, "end_step": 8, "description": "Synthetic feeder protection event"},
+    {"kind": "peaker_unavailable", "start_step": 8, "end_step": 8, "description": "Synthetic peaker start failure"}
+  ]
+}
