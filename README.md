@@ -1,5 +1,7 @@
 # Grid Ops Arena
 
+**Try it and help shape the next release:** [short user pilot](docs/USER_PILOT.md) · [give feedback](https://github.com/nripankadas07/grid-ops-arena/issues/new?template=user_feedback.yml).
+
 Grid Ops Arena is a deterministic, zero-runtime-dependency microgrid simulator for testing dispatch policies under synthetic load, renewable generation, battery limits, peaker constraints, price changes, and outages.
 
 > **Data boundary:** every bundled load, generation, price, emissions factor, and event is synthetic. Nothing here is presented as a current climate, market, or grid fact.
